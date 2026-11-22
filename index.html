@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>What Do We Dream About?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Oswald:wght@400;500;700&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: a city folding over itself above a quiet street. The barcodes are glass facades; each stripe is a lit window, each row a floor. */
+:root{
+  color-scheme: dark;
+  --bg:#050c13;
+  --bg-2:#0b1822;
+  --ink:#e4eef3;
+  --ink-2:#9bb2bf;
+  --ink-3:#607a8a;
+  --line:#173040;
+  --fog:#2c586b;
+  --amber:#f0b25a;           /* street-lamp warm: focus ring and highlights only */
+  --anger:#e66767;
+  --happiness:#b89400;
+  --confusion:#199e70;
+  --sadness:#3987e5;
+  --apprehension:#7e8b99;    /* neutral: the most common feeling is the baseline */
+  --none:#22343f;
+  --display:'Oswald','Arial Narrow',sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:300;font-size:16px;line-height:1.6;padding-block:0 4rem}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto}
+
+/* hero */
+.hero{position:relative;height:clamp(460px,78vh,680px);overflow:hidden;background:#0a1d29}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,#050c1300 55%,#050c13cc 82%,var(--bg) 100%),radial-gradient(120% 80% at 50% 50%,transparent 55%,#050c1399 100%);pointer-events:none}
+.hero-text{position:absolute;left:0;right:0;bottom:0;z-index:2;padding-bottom:1.6rem;text-align:center}
+.hero-text .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-2);margin:0 0 .9rem}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.6rem,9.5vw,6rem);line-height:.98;letter-spacing:.05em;text-transform:uppercase;margin:0;color:#eaf4f8;text-shadow:0 0 40px #5fa6c455;text-wrap:balance}
+.billing{font-family:var(--display);font-weight:400;font-size:.8rem;letter-spacing:clamp(.14em,1.2vw,.34em);text-transform:uppercase;color:var(--ink-2);margin:1.1rem 0 0}
+.billing em{font-style:normal;white-space:nowrap}
+.billing span{color:var(--ink-3);padding-inline:.5em}
+
+.intro{padding-top:2rem}
+.lede{max-width:58ch;color:var(--ink-2);font-size:1.05rem;margin:0 auto;text-align:center}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin:1.8rem 0 0;padding:0;list-style:none}
+.legend button{all:unset;cursor:pointer;display:flex;align-items:center;gap:.55rem;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;font-size:.82rem;color:var(--ink-2);background:#0b1822cc;transition:border-color .15s,color .15s}
+.legend button:hover{border-color:var(--ink-3);color:var(--ink)}
+.legend button[aria-pressed="true"]{border-color:var(--amber);color:var(--ink)}
+.legend button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.legend i{width:.8rem;height:.8rem;border-radius:1px;display:block}
+.legend b{font-weight:400;font-family:var(--mono);font-size:.74rem;color:var(--ink-3)}
+.hint{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.9rem 0 0;text-align:center}
+
+/* facades */
+main{position:relative}
+.block{margin-top:3rem}
+.block-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem 1.2rem;margin-bottom:.3rem}
+h2{font-family:var(--display);font-weight:500;font-size:1.25rem;letter-spacing:.2em;text-transform:uppercase;margin:0}
+.block-head .meta{font-family:var(--mono);font-size:.78rem;color:var(--ink-3)}
+.note{color:var(--ink-2);font-size:.9rem;max-width:62ch;margin:.2rem 0 1rem}
+.facade{position:relative;padding:18px 16px 14px;border:1px solid var(--line);background:
+  linear-gradient(115deg,#ffffff0d 0%,#ffffff00 28%,#ffffff08 52%,#ffffff00 70%),
+  linear-gradient(to bottom,#0e202c,#08131b);
+  box-shadow:inset 0 1px 0 #ffffff12,0 30px 80px #0009}
+canvas.bar{display:block;width:100%;touch-action:pan-y;cursor:crosshair}
+.tip{position:absolute;z-index:5;pointer-events:none;max-width:300px;background:#071019f5;border:1px solid var(--line);border-left:2px solid var(--amber);padding:.65rem .8rem;font-size:.84rem;line-height:1.45;color:var(--ink);box-shadow:0 8px 30px #000a;opacity:0;transition:opacity .1s}
+.tip.on{opacity:1}
+.tip .t{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);display:flex;gap:.7rem;margin-bottom:.35rem;flex-wrap:wrap}
+.tip q{display:block;quotes:none;font-weight:300;color:var(--ink)}
+.tip .none{color:var(--ink-3)}
+canvas.cast{display:block;touch-action:pan-y;cursor:crosshair}
+.keynote{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.8rem 0 0}
+.trend-row{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.4rem}
+.trend-row.lead .tcell svg{height:210px}
+.trend-label{grid-column:1/-1;display:flex;align-items:center;gap:.6rem;font-family:var(--display);font-weight:500;letter-spacing:.18em;text-transform:uppercase;font-size:.9rem;margin-bottom:-.6rem}
+.trend-label i{width:.8rem;height:.8rem;display:block;border-radius:1px}
+.tcell{min-width:0}
+.tcell .th{font-family:var(--mono);font-size:.74rem;color:var(--ink-3);display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin-bottom:.2rem}
+.tcell .th b{font-weight:400;color:var(--ink-2)}
+.tcell .th .clear{color:var(--amber)}
+.tcell svg{display:block;width:100%;height:130px;overflow:visible}
+@media (max-width:700px){.trend-row{grid-template-columns:1fr}}
+.legend-sec{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:2.6rem;align-items:center;padding-block:3.5rem 1rem}
+.poster{position:relative;justify-self:center;width:100%;max-width:320px;aspect-ratio:3/4;padding:1.2rem 1.2rem 1rem;display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid #2a4a5c;background:linear-gradient(160deg,#16303f,#0a1a24 70%);box-shadow:0 30px 70px #000a,inset 0 1px 0 #ffffff14;transform:perspective(900px) rotateY(-9deg) rotateX(2deg);transition:transform .5s}
+.poster:hover{transform:perspective(900px) rotateY(0) rotateX(0)}
+.poster h3{font-family:var(--display);font-weight:700;font-size:1.55rem;letter-spacing:.06em;line-height:1.1;text-transform:uppercase;margin:.2rem 0 .6rem}
+.poster img{flex:1;min-height:0;max-width:100%;object-fit:contain;background:#dfe8ec;padding:6px;box-shadow:0 0 0 1px #ffffff22,0 10px 30px #0008;mix-blend-mode:normal;filter:contrast(1.05) brightness(.92)}
+.poster .face{animation:flick 6s infinite}
+@keyframes flick{0%,86%,100%{opacity:.9}90%{opacity:.35}93%{opacity:.8}96%{opacity:.4}}
+.poster small{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:.5rem}
+.legend-copy h2{font-size:1.1rem;margin-bottom:1rem}
+.legend-copy p{color:var(--ink-2);max-width:56ch;margin:0 0 .9rem}
+.legend-copy p strong{color:var(--ink);font-weight:400}
+.ask{display:flex;gap:.6rem;flex-wrap:wrap;margin:1.2rem 0 .8rem}
+.ask button{all:unset;cursor:pointer;padding:.5rem 1.1rem;border:1px solid var(--line);border-radius:2px;font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;font-size:.85rem;background:#0b1822cc;color:var(--ink-2)}
+.ask button:hover{border-color:var(--ink-3);color:var(--ink)}
+.ask button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.ask button[aria-pressed="true"]{border-color:var(--amber);color:var(--ink)}
+#reveal{min-height:4.6rem;color:var(--ink);margin:0}
+.pivot{font-family:var(--display);font-weight:500;font-size:clamp(1.1rem,2.6vw,1.5rem);letter-spacing:.08em;text-transform:uppercase;text-align:center;max-width:30ch;margin:3.4rem auto 0;color:var(--ink);text-wrap:balance}
+.pivot span{color:var(--amber)}
+@media (max-width:760px){.legend-sec{grid-template-columns:1fr;gap:1.6rem}.poster{transform:none}}
+@media (prefers-reduced-motion:reduce){.poster .face{animation:none}.poster{transition:none}}
+.dm{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:1.6rem}
+.dm-ctrl{display:flex;flex-direction:column;gap:.9rem}
+.dm-ctrl label{display:flex;flex-direction:column;gap:.25rem;font-size:.82rem;color:var(--ink-2)}
+.dm-ctrl label span{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.74rem}
+.dm-ctrl label span b{font-weight:400;color:var(--ink-3)}
+.dm-ctrl input[type=range]{accent-color:var(--amber);width:100%;margin:0;height:1.4rem}
+.dm-row{display:flex;flex-wrap:wrap;gap:.45rem}
+.dm-row button,.dm-go button{all:unset;cursor:pointer;padding:.4rem .75rem;border:1px solid var(--line);border-radius:2px;font-size:.78rem;color:var(--ink-2);background:#0b1822cc}
+.dm-row button:hover,.dm-go button:hover{border-color:var(--ink-3);color:var(--ink)}
+.dm-row button[aria-pressed="true"]{border-color:var(--amber);color:var(--ink)}
+.dm-row button:focus-visible,.dm-go button:focus-visible,.dm-ctrl input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.dm-go{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem}
+.dm-go button{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;padding:.55rem 1rem;font-size:.85rem}
+.dm-go button.primary{border-color:var(--amber);color:var(--ink)}
+.dm-go button:disabled{opacity:.4;cursor:default}
+.dm-h{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:.2rem 0 0}
+.dm-out{display:flex;flex-direction:column;gap:.9rem;min-height:12rem}
+.dcard{border:1px solid var(--line);padding:1rem 1.1rem 1.1rem;background:#060f16;transition:opacity .3s}
+.dcard .lv{font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between;margin-bottom:.6rem}
+.dcard p{margin:0;font-size:1.02rem;line-height:1.75;color:var(--ink)}
+.sent{all:unset;cursor:pointer;border-radius:2px;padding:.05rem .1rem;box-shadow:inset 0 -2px 0 var(--sc,#334)}
+.sent:hover,.sent:focus-visible{background:#ffffff12;outline:none}
+.sent:focus-visible{outline:2px solid var(--amber)}
+.dm-empty{color:var(--ink-3);font-size:.9rem;margin:0}
+.dm-fine{font-family:var(--mono);font-size:.7rem;color:var(--ink-3);margin:.9rem 0 0}
+@media (max-width:760px){.dm{grid-template-columns:1fr}}
+footer{margin-top:4rem;padding-top:1.4rem;border-top:1px solid var(--line);font-size:.8rem;color:var(--ink-3);max-width:70ch}
+footer p{margin:.3rem 0}
+.draft{position:absolute;top:max(14px,env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));z-index:3;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid #ffffff30;padding:.15rem .5rem;color:var(--amber);background:#050c1366}
+</style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Two real dream journals as a barcode, a cast of recurring people, mood trends and a sentence-stitching Dream Machine.">
+</head>
+<body>
+<div class="hero" id="hero">
+  <canvas id="city" role="img" aria-label="A city street whose far end folds upward over itself"></canvas>
+  <div class="hero-text gut">
+    <p class="tag">Two journals · <span id="total">4,520</span> dreams</p>
+    <h1>What do we dream about?</h1>
+    <p class="billing"><em>Barb Sanders</em><span>/</span><em>Pegasus</em><span>/</span><em>DreamBank</em></p>
+  </div>
+</div>
+
+<div class="gut"><div class="wrap">
+<section class="legend-sec" aria-labelledby="h-legend">
+  <div class="poster" aria-hidden="true">
+    <h3>Have you<br>seen this man?</h3>
+    <img class="face" src="thisman.jpg" alt="">
+    <small>Seen in dreams, 2006 onward</small>
+  </div>
+  <div class="legend-copy">
+    <h2 id="h-legend">The legend</h2>
+    <p>In 2006 a sketch of an ordinary man went around the web. The claim: <strong>thousands of people, in cities all over the world, see this same face in their dreams.</strong></p>
+    <p>It is widely regarded as a hoax. A vague, average face resembles someone you have met, and memory fills in the rest.</p>
+    <div class="ask" role="group" aria-label="Did you see him?">
+      <button type="button" id="ask-yes" aria-pressed="false">I think so</button>
+      <button type="button" id="ask-no" aria-pressed="false">Never</button>
+    </div>
+    <p id="reveal" role="status">Be honest: does this face feel familiar?</p>
+  </div>
+</section>
+<p class="pivot">Real dreams are less mysterious, and <span>more specific</span>. So we read two journals.</p>
+
+<div class="intro">
+  <p class="lede">Every window below is one real dream, written down the morning after. Read each floor left to right, then go down. The color is the feeling the dream is mostly about.</p>
+  <ul class="legend" id="legend" aria-label="Filter by dominant emotion"></ul>
+  <p class="hint">Hover or tap a window to read a line from that dream. Click a feeling to find it.</p>
+</div>
+
+<main>
+  <section class="block" aria-labelledby="h-barb">
+    <div class="block-head"><h2 id="h-barb">Barb Sanders</h2><span class="meta" id="m-barb"></span></div>
+    <p class="note">A woman who kept a dream journal for more than twenty years. Floors are in the order she wrote them. The year at the start of a floor is her recorded date where she gave one, otherwise estimated.</p>
+    <div class="facade"><canvas class="bar" id="c-barb" role="img" aria-label="Barcode of Barb Sanders's dreams, one window per dream, colored by dominant emotion"></canvas></div>
+  </section>
+  <section class="block" aria-labelledby="h-peg">
+    <div class="block-head"><h2 id="h-peg">Pegasus</h2><span class="meta" id="m-peg"></span></div>
+    <p class="note">A factory worker who recorded dreams between 1949 and 1964. His entries carry no dates, so his floors are numbered by dream.</p>
+    <div class="facade"><canvas class="bar" id="c-peg" role="img" aria-label="Barcode of Pegasus's dreams, one window per dream, colored by dominant emotion"></canvas></div>
+  </section>
+  <section class="block" aria-labelledby="h-cast">
+    <div class="block-head"><h2 id="h-cast">Who keeps coming back</h2><span class="meta">recurring people, by dream</span></div>
+    <p class="note">The legend says one stranger haunts thousands of dreamers. In a real long journal, the faces that return are specific people. Each tick is a dream where that person appears, colored by the dream's strongest feeling. Names are hidden; roles come from the researcher's public write-up of Barb's journal.</p>
+    <div class="facade"><canvas class="cast" id="c-cast" role="img" aria-label="Timeline of recurring people in Barb Sanders's dreams, one tick per dream"></canvas></div>
+    <p class="keynote">Barb's floors above run in the same order as these rows. Click an emotion in the key at the top to dim the others here too.</p>
+    <div class="block-head" style="margin-top:2.4rem"><h2 style="font-size:1rem">Pegasus</h2><span class="meta">no dates, so rows run by dream number</span></div>
+    <div class="facade"><canvas class="cast" id="c-cast2" role="img" aria-label="Timeline of recurring people in Pegasus's dreams, one tick per dream"></canvas></div>
+  </section>
+  <section class="block" aria-labelledby="h-trend">
+    <div class="block-head"><h2 id="h-trend">Does the mood change?</h2><span class="meta">average feeling per 100 dreams, length-adjusted</span></div>
+    <p class="note">Each dot is the average for one year of Barb's journal, or one stretch of about 70 dreams for Pegasus. The shaded band is the range we are 95% sure of: if it is wide, the data cannot say much. Anger comes first because it is the clearest change in Barb's journal. The vertical scale is the same for both journals within a feeling, but the two people are decades and lives apart, so compare the direction of each line, not how high they sit.</p>
+    <div class="facade" id="trends"></div>
+    <p class="keynote">Amber means the trend line's 95% range excludes zero. With five feelings tested, one or two of these could be chance; in Barb's journal only anger survives a strict correction. Pegasus has no dates, so his lines assume the order of his dreams is the order he had them.</p>
+  </section>
+  <section class="block" aria-labelledby="h-dm">
+    <div class="block-head"><h2 id="h-dm">Dream Machine</h2><span class="meta">real sentences, stitched by feeling</span></div>
+    <p class="note">Set how much of each feeling you want, then dream. The machine pulls real sentences from the two journals whose strongest feeling matches. Nobody ever dreamed the result. Click a sentence to swap it, or go a level deeper for a dream inside the dream.</p>
+    <div class="facade"><div class="dm">
+      <div class="dm-ctrl" id="dm-ctrl">
+        <p class="dm-h">Feelings</p>
+        <div id="dm-sliders"></div>
+        <p class="dm-h">Presets</p>
+        <div class="dm-row" id="dm-presets"></div>
+        <p class="dm-h">Voices</p>
+        <div class="dm-row" id="dm-voice" role="group" aria-label="Whose sentences"></div>
+        <label for="dm-len"><span>Length <b id="dm-lenv">6 sentences</b></span><input type="range" id="dm-len" min="3" max="9" value="6"></label>
+        <div class="dm-go">
+          <button type="button" class="primary" id="dm-dream">Dream</button>
+          <button type="button" id="dm-deeper" disabled>Go deeper</button>
+          <button type="button" id="dm-wake" disabled>Wake up</button>
+        </div>
+      </div>
+      <div>
+        <div class="dm-out" id="dm-out" aria-live="polite"><p class="dm-empty">Your dream will appear here.</p></div>
+        <p class="dm-fine" id="dm-fine"></p>
+      </div>
+    </div></div>
+  </section>
+  <div class="tip" id="tip" role="status"></div>
+</main>
+
+<footer>
+  <p>Dreams: DreamBank.net (UC Santa Cruz), CC BY-NC-SA 4.0, via the DReAMy Hugging Face copy. Dreams under 50 words are left out.</p>
+  <p>The sketch of the man is the widely circulated image from the 2006 legend; its original author is unknown.</p>
+  <p>Emotions: tagged automatically with the DReAMy annotator (five Hall &amp; Van de Castle emotions). Each window shows the strongest one. Names in excerpts are hidden.</p>
+</footer>
+</div></div>
+
+<script>
+(function(){
+  var r=document.getElementById('reveal'),y=document.getElementById('ask-yes'),n=document.getElementById('ask-no');
+  function set(btn,other,txt){btn.setAttribute('aria-pressed','true');other.setAttribute('aria-pressed','false');r.textContent=txt}
+  y.addEventListener('click',function(){set(y,n,'That is the trick. The face is deliberately average. It resembles anyone, and your memory supplies the details.')});
+  n.addEventListener('click',function(){set(n,y,'Fair. In real journals the figures that keep coming back are rarely strangers like this. They are people the dreamer knows.')});
+})();
+</script>
+<script>
+/* ---------- hero: a street that folds upward ---------- */
+(function(){
+  var hero=document.getElementById('hero'),cv=document.getElementById('city'),ctx=cv.getContext('2d');
+  var off=document.createElement('canvas'),octx=off.getContext('2d');
+  var W=0,H=0,t0=0,reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function rnd(seed){var s=seed;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296}}
+  function mix(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]}
+  function rgb(c,a){return 'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(a==null?1:a)+')'}
+  function scene(){
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    W=hero.clientWidth;H=hero.clientHeight;
+    cv.width=W*dpr;cv.height=H*dpr;
+    off.width=W*dpr;off.height=H*dpr;
+    octx.setTransform(dpr,0,0,dpr,0,0);
+    var h2=H/2,vx=W/2,f=W*0.5;
+    var g=octx.createLinearGradient(0,0,0,h2);
+    g.addColorStop(0,'#0a1b27');g.addColorStop(1,'#2a5568');
+    octx.fillStyle=g;octx.fillRect(0,0,W,h2);
+    var gg=octx.createLinearGradient(0,h2,0,H);
+    gg.addColorStop(0,'#3a6a7c');gg.addColorStop(.25,'#12262f');gg.addColorStop(1,'#050b10');
+    octx.fillStyle=gg;octx.fillRect(0,h2,W,H-h2);
+    var dark=[5,12,18],haze=[96,158,182];
+    var R=rnd(7);
+    var camY=1.7, street=3.6;
+    function px(X,z){return vx+X/z*f}
+    function sy(Y,z){return h2-(Y-camY)/z*f}   /* Y up; points above eye level rise above the horizon */
+    ['L','R'].forEach(function(side){
+      var sgn=side==='L'?-1:1,z=1.3;
+      var list=[];
+      while(z<90){var d=5+R()*10,hgt=30+R()*80;list.push({z1:z,z2:z+d,h:hgt,off:street+R()*3,lit:.22+R()*.4});z+=d+ (R()<.25?3+R()*5:0.2)}
+      for(var i=list.length-1;i>=0;i--){
+        var b=list[i],fog=Math.min(1,Math.pow(b.z1/70,.7));
+        var base=mix([34,66,84],haze,fog*.8);
+        var X=sgn*b.off;
+        var x1=px(X,b.z1),x2=px(X,b.z2),yt1=sy(b.h,b.z1),yt2=sy(b.h,b.z2),yb1=sy(0,b.z1),yb2=sy(0,b.z2);
+        /* street-facing wall */
+        var gr=octx.createLinearGradient(0,Math.min(yt1,yt2),0,Math.max(yb1,yb2));
+        gr.addColorStop(0,rgb(mix(base,haze,.15)));gr.addColorStop(1,rgb(mix(base,dark,.3)));
+        gr=gr;
+        octx.fillStyle=gr;octx.beginPath();octx.moveTo(x1,yt1);octx.lineTo(x2,yt2);octx.lineTo(x2,yb2);octx.lineTo(x1,yb1);octx.closePath();octx.fill();
+        /* near end face (toward camera) */
+        var xo=px(sgn*(b.off+8),b.z1);
+        octx.fillStyle=rgb(mix(base,dark,.5));octx.beginPath();octx.moveTo(x1,yt1);octx.lineTo(xo,yt1);octx.lineTo(xo,yb1);octx.lineTo(x1,yb1);octx.closePath();octx.fill();
+        /* windows: floors up the wall, bays along it */
+        var floors=Math.floor(b.h/1.15),bays=Math.max(4,Math.floor((b.z2-b.z1)/.55));
+        for(var fl=0;fl<floors;fl++){
+          var Y0=.4+fl*1.15,Y1=Y0+.62;
+          for(var by=0;by<bays;by++){
+            var za=b.z1+(by+.18)*(b.z2-b.z1)/bays,zb=b.z1+(by+.72)*(b.z2-b.z1)/bays;
+            var r=R(),lit=r<b.lit;
+            if(!lit&&R()<.4)continue;
+            var xa=px(X,za),xb=px(X,zb);if((xa<-20&&xb<-20)||(xa>W+20&&xb>W+20)||sy(Y0,za)<-30)continue;
+            var ya0=sy(Y0,za),ya1=sy(Y1,za),yb0=sy(Y0,zb),yb1=sy(Y1,zb);
+            octx.fillStyle=lit?(R()<.35?rgb([248,190,100],.8*(1-fog*.5)):rgb([200,236,248],.7*(1-fog*.4))):rgb(mix(base,[10,26,36],.7),.9);
+            octx.beginPath();octx.moveTo(xa,ya1);octx.lineTo(xb,yb1);octx.lineTo(xb,yb0);octx.lineTo(xa,ya0);octx.closePath();octx.fill();
+          }
+        }
+      }
+    });
+    /* lane dashes on the street */
+    octx.fillStyle='rgba(200,225,235,.28)';
+    for(var zz=3;zz<70;zz*=1.18){var za=zz,zb=zz*1.09;octx.beginPath();octx.moveTo(px(-.12,za),sy(0,za));octx.lineTo(px(.12,za),sy(0,za));octx.lineTo(px(.12,zb),sy(0,zb));octx.lineTo(px(-.12,zb),sy(0,zb));octx.closePath();octx.fill()}
+    /* central haze at the vanishing point */
+    var hz=octx.createRadialGradient(vx,h2,0,vx,h2,W*.38);
+    hz.addColorStop(0,'rgba(190,225,240,.85)');hz.addColorStop(.35,'rgba(110,170,195,.35)');hz.addColorStop(1,'rgba(40,90,110,0)');
+    octx.fillStyle=hz;octx.fillRect(0,0,W,H);
+  }
+  function frame(ts){
+    var dpr=cv.width/W;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle='#0a1d29';ctx.fillRect(0,0,W,H);
+    var h2=H/2;
+    ctx.drawImage(off,0,0,off.width,off.height,0,0,W,H);
+    /* the top half is the lower half mirrored: the street folds up and over */
+    ctx.save();ctx.beginPath();ctx.rect(0,0,W,h2);ctx.clip();
+    ctx.translate(0,H);ctx.scale(1,-1);
+    ctx.drawImage(off,0,h2*(off.height/H),off.width,off.height-h2*(off.height/H),0,h2,W,H-h2);
+    ctx.restore();
+    /* drifting fog bands */
+    var t=(ts||0)/1000;
+    for(var i=0;i<3;i++){
+      var x=((t*(8+i*5)+i*W*.4)%(W*1.6))-W*.3,y=H*(.28+i*.2);
+      var g=ctx.createRadialGradient(x,y,0,x,y,W*.35);
+      g.addColorStop(0,'rgba(150,200,220,.10)');g.addColorStop(1,'rgba(150,200,220,0)');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    }
+  }
+  function loop(ts){frame(ts);requestAnimationFrame(loop)}
+  function init(){scene();frame(0);if(!reduce)requestAnimationFrame(loop)}
+  init();
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){scene();frame(0)},150)});
+})();
+</script>
+
+<script>
+/* ---------- barcodes ---------- */
+(function(){
+  var EMO=[
+    {k:'anger',label:'Anger',c:'--anger'},
+    {k:'happiness',label:'Happiness',c:'--happiness'},
+    {k:'confusion',label:'Confusion',c:'--confusion'},
+    {k:'sadness',label:'Sadness',c:'--sadness'},
+    {k:'apprehension',label:'Apprehension',c:'--apprehension'},
+    {k:'none',label:'No clear emotion',c:'--none'}
+  ];
+  var css=getComputedStyle(document.documentElement);
+  var COL=EMO.map(function(e){return css.getPropertyValue(e.c).trim()});
+  var INK3=css.getPropertyValue('--ink-3').trim(),AMBER=css.getPropertyValue('--amber').trim(),LINE=css.getPropertyValue('--line').trim();
+  var data={0:[],1:[]},active=-1,panels=[];
+  var tip=document.getElementById('tip');
+  var LABEL=38,ROWH=20,GAP=8,BAY=10,PIL=5;
+
+  function Panel(id,j){this.cv=document.getElementById(id);this.j=j;this.ctx=this.cv.getContext('2d');this.hover=-1;this.per=150;this.sw=5}
+  Panel.prototype.xp=function(c){return LABEL+c*this.sw+Math.floor(c/BAY)*PIL};
+  Panel.prototype.layout=function(){
+    var W=this.cv.parentNode.clientWidth-32;this.W=W;
+    this.per=W>=820?150:(W>=520?80:40);
+    var n=data[this.j].length;this.rows=Math.ceil(n/this.per);
+    var bays=Math.ceil(this.per/BAY);
+    this.sw=(W-LABEL-(bays-1)*PIL)/this.per;
+    var H=this.rows*(ROWH+GAP),dpr=window.devicePixelRatio||1;
+    this.H=H;this.cv.width=Math.round(W*dpr);this.cv.height=Math.round(H*dpr);
+    this.cv.style.width=W+'px';this.cv.style.height=H+'px';
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);this.draw();
+  };
+  Panel.prototype.draw=function(){
+    var ctx=this.ctx,d=data[this.j],per=this.per,sw=this.sw;
+    ctx.clearRect(0,0,this.W,this.H);
+    ctx.font='11px "IBM Plex Mono", monospace';ctx.textBaseline='middle';ctx.textAlign='left';
+    var gap=sw>=3?1:0;
+    for(var r=0;r<this.rows;r++){
+      var y=r*(ROWH+GAP),first=d[r*per];
+      ctx.fillStyle=INK3;
+      if(this.j===0&&first&&first[2])ctx.fillText('’'+String(first[2]).slice(2),0,y+ROWH/2);
+      else if(this.j===1)ctx.fillText(String(r*per+1),0,y+ROWH/2);
+      for(var c=0;c<per;c++){
+        var i=r*per+c;if(i>=d.length)break;
+        var e=d[i][3];
+        ctx.globalAlpha=(active<0||active===e)?1:.12;
+        ctx.fillStyle=COL[e];
+        ctx.fillRect(this.xp(c),y,Math.max(sw-gap,1),ROWH);
+      }
+      ctx.globalAlpha=1;
+      ctx.fillStyle=LINE;ctx.fillRect(LABEL,y+ROWH+Math.floor(GAP/2),this.W-LABEL,1);
+    }
+    if(this.hover>=0){
+      var r2=Math.floor(this.hover/per),c2=this.hover%per;
+      ctx.strokeStyle=AMBER;ctx.lineWidth=2;
+      ctx.strokeRect(this.xp(c2)-1,r2*(ROWH+GAP)-2,Math.max(sw,3)+2,ROWH+4);
+    }
+  };
+  Panel.prototype.hit=function(ev){
+    var b=this.cv.getBoundingClientRect(),x=ev.clientX-b.left,y=ev.clientY-b.top;
+    var r=Math.floor(y/(ROWH+GAP));
+    if(x<LABEL||r<0||r>=this.rows||(y-r*(ROWH+GAP))>ROWH)return -1;
+    var c=Math.floor((x-LABEL)/(this.sw+PIL/BAY));if(c<0)c=0;if(c>=this.per)c=this.per-1;
+    while(c>0&&x<this.xp(c))c--;
+    while(c<this.per-1&&x>=this.xp(c+1))c++;
+    if(x<this.xp(c)||x>this.xp(c)+this.sw)return -1;
+    var i=r*this.per+c;return i<data[this.j].length?i:-1;
+  };
+  Panel.prototype.bind=function(){
+    var self=this;
+    function move(ev){
+      var i=self.hit(ev);
+      if(i!==self.hover){self.hover=i;self.draw()}
+      if(i<0){tip.classList.remove('on');return}
+      var d=data[self.j][i],e=EMO[d[3]];
+      var when=self.j===0?(d[2]?(d[5]?String(d[2]):'about '+d[2]):'undated'):'';
+      tip.innerHTML='<div class="t"><span>Dream #'+d[1]+'</span>'+(when?'<span>'+when+'</span>':'')+'<span style="color:'+COL[d[3]]+'">'+e.label+'</span></div>'+(d[4]?'<q></q>':'<span class="none">No excerpt shown for this dream.</span>');
+      if(d[4])tip.querySelector('q').textContent='“'+d[4]+'”';
+      var host=tip.parentNode.getBoundingClientRect(),b=self.cv.getBoundingClientRect();
+      var px=ev.clientX-host.left+14,py=b.top-host.top+Math.floor(i/self.per)*(ROWH+GAP)+ROWH+10;
+      var tw=Math.min(300,host.width-24);if(px+tw>host.width)px=host.width-tw-4;
+      tip.style.left=Math.max(4,px)+'px';tip.style.top=py+'px';tip.classList.add('on');
+    }
+    this.cv.addEventListener('pointermove',move);
+    this.cv.addEventListener('pointerdown',move);
+    this.cv.addEventListener('pointerleave',function(){self.hover=-1;self.draw();tip.classList.remove('on')});
+  };
+
+  var ROLEPAD=0;
+  function CastPanel(id,key,j){this.cv=document.getElementById(id);this.ctx=this.cv.getContext('2d');this.key=key;this.j=j;this.hover=null}
+  CastPanel.prototype.layout=function(){
+    var W=this.cv.parentNode.clientWidth-32;this.W=W;this.PL=0;this.pw=W;
+    this.blockH=48;this.rows=this.people.length;
+    var H=this.rows*this.blockH+40,dpr=window.devicePixelRatio||1;this.H=H;
+    this.cv.width=Math.round(W*dpr);this.cv.height=Math.round(H*dpr);
+    this.cv.style.width=W+'px';this.cv.style.height=H+'px';this.ctx.setTransform(dpr,0,0,dpr,0,0);this.draw();
+  };
+  CastPanel.prototype.x=function(i){return i/this.N*this.pw};
+  CastPanel.prototype.draw=function(){
+    var ctx=this.ctx,N=this.N,pw=this.pw,d=data[this.j];
+    ctx.clearRect(0,0,this.W,this.H);
+    ctx.font='11px "IBM Plex Mono", monospace';ctx.textBaseline='alphabetic';
+    var INK2=css.getPropertyValue('--ink-2').trim();
+    for(var r=0;r<this.rows;r++){
+      var pe=this.people[r],y0=r*this.blockH;
+      ctx.fillStyle=INK2;ctx.textAlign='left';
+      ctx.fillText(pe.role,0,y0+12);
+      ctx.fillStyle=INK3;ctx.textAlign='right';
+      ctx.fillText(this.W<560?pe.n+' \u00B7 '+(100*pe.n/N).toFixed(1)+'%':pe.n+' dreams \u00B7 '+(100*pe.n/N).toFixed(1)+'%',pw,y0+12);
+      var by=y0+18,bh=24;
+      ctx.fillStyle='#ffffff08';ctx.fillRect(0,by,pw,bh);
+      /* density wash */
+      var bins=40,cnt=new Array(bins).fill(0),mx=1;
+      pe.idx.forEach(function(i){cnt[Math.min(bins-1,Math.floor(i/N*bins))]++});
+      cnt.forEach(function(c){if(c>mx)mx=c});
+      ctx.fillStyle='#8fc4dc22';
+      cnt.forEach(function(c,b){var h=bh*c/mx;ctx.fillRect(b*pw/bins,by+bh-h,pw/bins,h)});
+      for(var k=0;k<pe.idx.length;k++){
+        var i=pe.idx[k],e=d[i][3];
+        ctx.globalAlpha=(active<0||active===e)?1:.12;
+        ctx.fillStyle=COL[e];ctx.fillRect(this.x(i),by+3,Math.max(1.4,pw/N),bh-6);
+      }
+      ctx.globalAlpha=1;
+    }
+    /* axis */
+    var ay=this.rows*this.blockH+4;
+    ctx.fillStyle=INK3;ctx.textAlign='center';
+    if(this.j===0){
+      var seen={};
+      for(var i=0;i<d.length;i+=1){var yv=d[i][2];if(yv&&yv%(this.W<560?10:5)===0&&!seen[yv]){seen[yv]=1;var xx=this.x(i);ctx.fillRect(xx,ay-4,1,4);ctx.fillText(String(yv),Math.min(Math.max(xx,14),pw-14),ay+14)}}
+      if(this.death!=null){
+        var dx=this.x(this.death);ctx.fillStyle='#f0b25a99';ctx.fillRect(dx,0,1,this.rows*this.blockH+20);
+        ctx.fillStyle=AMBER;ctx.textAlign=dx>pw*.6?'right':'left';ctx.fillText('Apr 1997: her ex-husband dies',dx+(dx>pw*.6?-6:6),this.rows*this.blockH+32);
+      }
+    }else{
+      ctx.fillText('dream 1',16,ay+14);ctx.fillText('dream '+N,pw-24,ay+14);
+    }
+    if(this.hover){ctx.strokeStyle=AMBER;ctx.lineWidth=2;var hr=this.hover.r,hx=this.x(this.hover.i);ctx.strokeRect(hx-2,hr*this.blockH+18,Math.max(4,pw/N)+3,24)}
+  };
+  CastPanel.prototype.hit=function(ev){
+    var b=this.cv.getBoundingClientRect(),x=ev.clientX-b.left,y=ev.clientY-b.top;
+    var r=Math.floor(y/this.blockH);if(r<0||r>=this.rows)return null;
+    var yy=y-r*this.blockH;if(yy<18||yy>42)return null;
+    var tgt=x/this.pw*this.N,best=null,bd=1e9,ix=this.people[r].idx;
+    var lo=0,hi=ix.length-1;while(lo<hi){var m=(lo+hi)>>1;if(ix[m]<tgt)lo=m+1;else hi=m}
+    [lo-1,lo].forEach(function(k){if(k>=0&&k<ix.length){var dd=Math.abs(ix[k]-tgt);if(dd<bd){bd=dd;best=ix[k]}}});
+    if(best==null||Math.abs(this.x(best)-x)>5)return null;
+    return {r:r,i:best};
+  };
+  CastPanel.prototype.bind=function(){
+    var self=this;
+    function move(ev){
+      var h=self.hit(ev);
+      if(!h&&!self.hover){return}
+      if(!h){self.hover=null;self.draw();tip.classList.remove('on');return}
+      if(!self.hover||self.hover.i!==h.i||self.hover.r!==h.r){self.hover=h;self.draw()}
+      var d=data[self.j][h.i],e=EMO[d[3]],pe=self.people[h.r];
+      var when=self.j===0?(d[2]?(d[5]?String(d[2]):'about '+d[2]):'undated'):'';
+      tip.innerHTML='<div class="t"><span>'+pe.role+'</span></div><div class="t"><span>Dream #'+d[1]+'</span>'+(when?'<span>'+when+'</span>':'')+'<span style="color:'+COL[d[3]]+'">'+e.label+'</span></div>'+(d[4]?'<q></q>':'<span class="none">No excerpt shown for this dream.</span>');
+      if(d[4])tip.querySelector('q').textContent='\u201C'+d[4]+'\u201D';
+      var host=tip.parentNode.getBoundingClientRect(),b=self.cv.getBoundingClientRect();
+      var px=ev.clientX-host.left+14,py=b.top-host.top+h.r*self.blockH+52;
+      var tw=Math.min(300,host.width-24);if(px+tw>host.width)px=host.width-tw-4;
+      tip.style.left=Math.max(4,px)+'px';tip.style.top=py+'px';tip.classList.add('on');
+    }
+    this.cv.addEventListener('pointermove',move);this.cv.addEventListener('pointerdown',move);
+    this.cv.addEventListener('pointerleave',function(){self.hover=null;self.draw();tip.classList.remove('on')});
+  };
+
+  function renderTrends(tr){
+    var host=document.getElementById('trends');host.innerHTML='';
+    var order=[0,3,2,1,4]; /* anger, sadness... keep fixed: anger first */
+    var keys=['anger','happiness','confusion','sadness','apprehension'];
+    var codeOf={anger:0,happiness:1,confusion:2,sadness:3,apprehension:4};
+    var INK2=css.getPropertyValue('--ink-2').trim();
+    keys.forEach(function(k,ri){
+      var row=document.createElement('div');row.className='trend-row'+(ri===0?' lead':'');
+      var lab=document.createElement('div');lab.className='trend-label';lab.innerHTML='<i style="background:'+COL[codeOf[k]]+'"></i>'+EMO[codeOf[k]].label;row.appendChild(lab);
+      var lo=Infinity,hi=-Infinity;
+      ['barb','pegasus'].forEach(function(j){var e=tr[j].emo[k];e.lo.concat(e.hi,e.m).forEach(function(v){if(v<lo)lo=v;if(v>hi)hi=v})});
+      var pad=(hi-lo)*.08;lo=Math.max(0,lo-pad);hi=hi+pad;
+      ['barb','pegasus'].forEach(function(j){
+        var T=tr[j],e=T.emo[k],cell=document.createElement('div');cell.className='tcell';
+        var sl=e.slope,clear=(sl[1]>0||sl[2]<0);
+        var unit=j==='barb'?'per decade':'over his journal';
+        var nm=j==='barb'?'Barb':'Pegasus';
+        cell.innerHTML='<div class="th"><span>'+nm+'</span><span class="'+(clear?'clear':'')+'">trend '+(sl[0]>0?'+':'\u2212')+Math.abs(sl[0]).toFixed(1)+' '+unit+' ['+(sl[1]>0?'+':'\u2212')+Math.abs(sl[1]).toFixed(1)+', '+(sl[2]>0?'+':'\u2212')+Math.abs(sl[2]).toFixed(1)+']'+(clear?'':' \u00B7 no clear change')+'</span></div>';
+        var W=Math.max(220,(host.clientWidth-32-(host.clientWidth>=700?19:0))/(host.clientWidth>=700?2:1)),H=ri===0?210:130,ML=32,MB=22,MT=6,MR=8;
+        var pw=W-ML-MR,ph=H-MB-MT,n=T.bins.length;
+        var xs=j==='barb'?T.bins.map(function(b){return (b-T.bins[0])/(T.bins[n-1]-T.bins[0])}):T.bins.map(function(b,i){return i/(n-1)});
+        var X=function(v){return ML+v*pw},Y=function(v){return MT+ph-(v-lo)/(hi-lo)*ph};
+        var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+nm+' '+EMO[codeOf[k]].label+' trend">';
+        [0,.5,1].forEach(function(f){var v=lo+(hi-lo)*f;svg+='<line x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="'+LINE+'" stroke-width="1"/><text x="'+(ML-6)+'" y="'+(Y(v)+3)+'" text-anchor="end" font-size="10" font-family="IBM Plex Mono, monospace" fill="'+INK3+'">'+Math.round(v)+'</text>'});
+        var up=e.hi.map(function(v,i){return X(xs[i])+','+Y(v)}),dn=e.lo.map(function(v,i){return X(xs[i])+','+Y(v)}).reverse();
+        svg+='<polygon points="'+up.concat(dn).join(' ')+'" fill="'+COL[codeOf[k]]+'" fill-opacity=".22"/>';
+        svg+='<polyline points="'+e.m.map(function(v,i){return X(xs[i])+','+Y(v)}).join(' ')+'" fill="none" stroke="'+COL[codeOf[k]]+'" stroke-width="2"/>';
+        e.m.forEach(function(v,i){svg+='<circle cx="'+X(xs[i])+'" cy="'+Y(v)+'" r="3" fill="'+COL[codeOf[k]]+'" stroke="#08131b" stroke-width="1.5"/>'});
+        var l=e.line;svg+='<line x1="'+X(0)+'" x2="'+X(1)+'" y1="'+Y(l[0])+'" y2="'+Y(l[1])+'" stroke="'+(clear?AMBER:INK3)+'" stroke-width="1.5" stroke-dasharray="5 4"/>';
+        var xl=j==='barb'?[String(T.bins[0]),String(T.bins[n-1])]:['dream 1','dream '+T.N];
+        svg+='<text x="'+ML+'" y="'+(H-4)+'" font-size="10" font-family="IBM Plex Mono, monospace" fill="'+INK3+'">'+xl[0]+'</text><text x="'+(W-MR)+'" y="'+(H-4)+'" text-anchor="end" font-size="10" font-family="IBM Plex Mono, monospace" fill="'+INK3+'">'+xl[1]+'</text>';
+        e.m.forEach(function(v,i){var lbl=j==='barb'?String(T.bins[i]):'dreams '+T.label[i];
+          svg+='<rect class="hz" data-t="'+lbl+' \u00B7 '+T.n[i]+' dreams|'+v.toFixed(1)+' ['+e.lo[i].toFixed(1)+', '+e.hi[i].toFixed(1)+']" x="'+(X(xs[i])-pw/n/2)+'" y="'+MT+'" width="'+(pw/n)+'" height="'+ph+'" fill="transparent"/>'});
+        svg+='</svg>';cell.insertAdjacentHTML('beforeend',svg);row.appendChild(cell);
+      });
+      host.appendChild(row);
+    });
+    host.querySelectorAll('.hz').forEach(function(r){
+      r.addEventListener('pointermove',function(ev){
+        var p=r.getAttribute('data-t').split('|');
+        tip.innerHTML='<div class="t"><span>'+p[0]+'</span></div><q>'+p[1]+' per 100 dreams</q>';
+        var hb=tip.parentNode.getBoundingClientRect(),px=ev.clientX-hb.left+14,py=ev.clientY-hb.top+14;
+        var tw=Math.min(300,hb.width-24);if(px+tw>hb.width)px=hb.width-tw-4;
+        tip.style.left=Math.max(4,px)+'px';tip.style.top=py+'px';tip.classList.add('on')});
+      r.addEventListener('pointerleave',function(){tip.classList.remove('on')});
+    });
+  }
+  function buildLegend(){
+    var all=data[0].concat(data[1]),c=[0,0,0,0,0,0];all.forEach(function(r){c[r[3]]++});
+    var ul=document.getElementById('legend');
+    EMO.forEach(function(e,i){
+      var li=document.createElement('li'),b=document.createElement('button');
+      b.type='button';b.setAttribute('aria-pressed','false');
+      b.innerHTML='<i style="background:'+COL[i]+'"></i>'+e.label+' <b>'+Math.round(100*c[i]/all.length)+'%</b>';
+      b.addEventListener('click',function(){
+        active=(active===i)?-1:i;
+        ul.querySelectorAll('button').forEach(function(x,k){x.setAttribute('aria-pressed',String(k===active))});
+        panels.forEach(function(p){p.draw()});
+      });
+      li.appendChild(b);ul.appendChild(li);
+    });
+  }
+  fetch('dreams_viz.json').then(function(r){return r.json()}).then(function(rows){
+    rows.forEach(function(r){data[r[0]].push(r)});
+    document.getElementById('total').textContent=rows.length.toLocaleString();
+    var b=new Panel('c-barb',0),p=new Panel('c-peg',1);panels=[b,p];
+    var yrs=data[0].map(function(r){return r[2]}).filter(Boolean);
+    document.getElementById('m-barb').textContent=data[0].length.toLocaleString()+' dreams · '+Math.min.apply(null,yrs)+'–'+Math.max.apply(null,yrs);
+    document.getElementById('m-peg').textContent=data[1].length.toLocaleString()+' dreams · 1949–1964';
+    buildLegend();panels.forEach(function(p){p.bind();p.layout()});
+    fetch('trends.json').then(function(r){return r.json()}).then(function(tr){
+      renderTrends(tr);var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){renderTrends(tr)},150)});
+    });
+    fetch('cast.json').then(function(r){return r.json()}).then(function(c){
+      var cb=new CastPanel('c-cast','barb',0),cp=new CastPanel('c-cast2','pegasus',1);
+      cb.people=c.barb;cb.N=c.barb_N;cb.death=c.death_idx;cp.people=c.pegasus;cp.N=c.pegasus_N;cp.people.forEach(function(q,k){q.role='Recurring person '+'ABCD'[k]});
+      cb.people.sort(function(a,b){return a.idx[0]-b.idx[0]});
+      [cb,cp].forEach(function(q){q.bind();q.layout();panels.push(q)});
+    });
+    var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(function(){panels.forEach(function(p){p.layout()})},120)});
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){panels.forEach(function(p){p.draw()})});
+  }).catch(function(){document.querySelector('main').insertAdjacentHTML('afterbegin','<p class="note">The dream data could not be loaded.</p>')});
+})();
+</script>
+<script>
+(function(){
+  var css=getComputedStyle(document.documentElement);
+  var NAMES=['Anger','Happiness','Confusion','Sadness','Apprehension','Calm'];
+  var VARS=['--anger','--happiness','--confusion','--sadness','--apprehension','--none'];
+  var COL=VARS.map(function(v){return css.getPropertyValue(v).trim()});
+  var tip=document.getElementById('tip'),out=document.getElementById('dm-out');
+  var pool=null,byDom=[[],[],[],[],[],[]],vals=[0,0,0,0,0],voice=0,levels=0,len=6;
+  var AMBER=css.getPropertyValue('--amber').trim();
+  function ready(){return !!pool}
+  /* controls */
+  var sl=document.getElementById('dm-sliders');
+  for(var i=0;i<5;i++){(function(i){
+    var l=document.createElement('label');l.setAttribute('for','dm-s'+i);
+    l.innerHTML='<span><em style="font-style:normal"><i style="color:'+COL[i]+';font-style:normal">\u25A0</i> '+NAMES[i]+'</em><b id="dm-v'+i+'">0</b></span><input type="range" id="dm-s'+i+'" min="0" max="100" value="0" style="accent-color:'+COL[i]+'">';
+    sl.appendChild(l);
+    l.querySelector('input').addEventListener('input',function(e){vals[i]=+e.target.value;document.getElementById('dm-v'+i).textContent=e.target.value;clearPreset()});
+  })(i)}
+  var PRE=[['Nightmare',[80,0,40,30,90]],['Pleasant',[0,90,0,10,10]],['Lost',[10,10,90,40,40]],['Quiet',[0,0,0,0,0]],['Grief',[20,0,10,95,30]]];
+  var pr=document.getElementById('dm-presets');
+  PRE.forEach(function(p,k){var b=document.createElement('button');b.type='button';b.textContent=p[0];b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){p[1].forEach(function(v,i){vals[i]=v;document.getElementById('dm-s'+i).value=v;document.getElementById('dm-v'+i).textContent=v});clearPreset();b.setAttribute('aria-pressed','true');if(ready())dream(false)});pr.appendChild(b)});
+  function clearPreset(){pr.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed','false')})}
+  var vo=document.getElementById('dm-voice');
+  [['Barb',0],['Pegasus',1],['Both',2]].forEach(function(v,k){var b=document.createElement('button');b.type='button';b.textContent=v[0];b.setAttribute('aria-pressed',String(k===2));
+    b.addEventListener('click',function(){voice=v[1];vo.querySelectorAll('button').forEach(function(x,q){x.setAttribute('aria-pressed',String(q===k))})});vo.appendChild(b)});
+  voice=2;
+  var lenEl=document.getElementById('dm-len');
+  lenEl.addEventListener('input',function(){len=+lenEl.value;document.getElementById('dm-lenv').textContent=len+' sentences'});
+  /* picking */
+  function allowed(r){return voice===2||r[0]===voice}
+  function pickFrom(e,used){
+    var list=byDom[e].filter(function(r){return allowed(r)&&!used[r[3]]});
+    var fb=false;
+    if(!list.length){list=byDom[e].filter(function(r){return !used[r[3]]});fb=true}
+    if(!list.length)return null;
+    var r=list[Math.floor(Math.random()*list.length)];return {r:r,e:e,fb:fb};
+  }
+  function chooseEmotion(){
+    var sum=vals.reduce(function(a,b){return a+b},0);
+    if(sum===0)return 5;
+    var x=Math.random()*sum,acc=0;
+    for(var i=0;i<5;i++){acc+=vals[i];if(x<acc)return i}
+    return 4;
+  }
+  function makeCard(){
+    var used={},items=[];
+    for(var k=0;k<len;k++){var it=pickFrom(chooseEmotion(),used);if(it){used[it.r[3]]=1;items.push(it)}}
+    return items;
+  }
+  function who(r){return (r[0]===0?'Barb':'Pegasus')+', dream #'+r[1]+(r[2]?', about '+r[2]:'')}
+  function bind(btn,it,card,idx){
+    btn.addEventListener('click',function(){
+      var used={};card.items.forEach(function(x){used[x.r[3]]=1});
+      var n=pickFrom(it.e,used);if(!n)return;card.items[idx]=n;render()});
+    function show(ev){
+      var host=tip.parentNode.getBoundingClientRect(),b=btn.getBoundingClientRect();
+      var note=it.r[9]?'<br>A historical reference the dreamer remembered.':'';
+      var fb=it.fb?'<br>No match in this voice, so this one is from the other journal.':'';
+      tip.innerHTML='<div class="t"><span style="color:'+COL[it.e]+'">'+NAMES[it.e]+'</span><span>'+who(it.r)+'</span></div><span class="none">Click to swap.'+note+fb+'</span>';
+      var px=b.left-host.left,py=b.bottom-host.top+8,tw=Math.min(300,host.width-24);
+      if(px+tw>host.width)px=host.width-tw-4;tip.style.left=Math.max(4,px)+'px';tip.style.top=py+'px';tip.classList.add('on');
+    }
+    btn.addEventListener('pointerenter',show);btn.addEventListener('focus',show);
+    btn.addEventListener('pointerleave',function(){tip.classList.remove('on')});btn.addEventListener('blur',function(){tip.classList.remove('on')});
+  }
+  var cards=[];
+  function render(){
+    out.innerHTML='';
+    if(!cards.length){out.innerHTML='<p class="dm-empty">Your dream will appear here.</p>';return}
+    cards.forEach(function(card,lv){
+      var d=document.createElement('div');d.className='dcard';
+      d.style.marginLeft=(lv*18)+'px';d.style.background='rgba(6,15,22,'+(1-lv*.08)+')';
+      d.innerHTML='<div class="lv"><span>Level '+(lv+1)+'</span><span>'+(lv===0?'the dream':'a dream inside the dream')+'</span></div><p></p>';
+      var p=d.querySelector('p');
+      card.items.forEach(function(it,idx){
+        var b=document.createElement('button');b.type='button';b.className='sent';b.style.setProperty('--sc',COL[it.e]);
+        b.textContent=it.r[3]+(it.r[9]?'\u2020':'');bind(b,it,card,idx);
+        p.appendChild(b);p.appendChild(document.createTextNode(' '));
+      });
+      out.appendChild(d);
+    });
+    document.getElementById('dm-deeper').disabled=cards.length===0||cards.length>=4;
+    document.getElementById('dm-deeper').textContent=cards.length>=4?'Limbo':'Go deeper';
+    document.getElementById('dm-wake').disabled=cards.length===0;
+    document.getElementById('dm-fine').textContent=cards.length?'Every sentence is real, from a real dream. The order and the feelings are the machine\u2019s.':'';
+  }
+  function dream(deeper){
+    if(!ready())return;
+    var items=makeCard();
+    if(!items.length){return}
+    if(deeper&&cards.length)cards.push({items:items});else cards=[{items:items}];
+    render();
+  }
+  document.getElementById('dm-dream').addEventListener('click',function(){dream(false)});
+  document.getElementById('dm-deeper').addEventListener('click',function(){dream(true)});
+  document.getElementById('dm-wake').addEventListener('click',function(){cards=[];render()});
+  fetch('pool.json').then(function(r){return r.json()}).then(function(rows){
+    pool=rows;
+    rows.forEach(function(r){
+      var sc=r.slice(4,9),m=Math.max.apply(null,sc);
+      if(m>=70){byDom[sc.indexOf(m)].push(r)}else if(m<=30){byDom[5].push(r)}
+    });
+    /* start with a plausible dream already on screen */
+    [[0,[60,0,20,20,80]]].forEach(function(p){p[1].forEach(function(v,i){vals[i]=v;document.getElementById('dm-s'+i).value=v;document.getElementById('dm-v'+i).textContent=v})});
+    dream(false);
+  }).catch(function(){out.innerHTML='<p class="dm-empty">The sentence pool could not be loaded.</p>'});
+})();
+</script>
+
+</body>
+</html>

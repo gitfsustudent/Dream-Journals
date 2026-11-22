@@ -2,7 +2,7 @@
 
 Following two dream journals across decades. CIS 5930 data visualization final project, Joshua Okafor.
 
-**Live page:** `[add GitHub Pages URL here]`
+**Live page:** `https://gitfsustudent.github.io/Dream-Journals/`
 
 A scrolling web page that opens with the "This Man" internet legend, then reads two real dream journals from
 DreamBank: **Barb Sanders** (a journal kept for about two decades, mostly 1979-2001) and **Pegasus** (a factory
